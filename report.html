@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; color: #1a1a1a; margin: 0; padding: 0; }
+  .cover { background: #1a1a2e; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; padding: 60px; }
+  .cover h1 { font-size: 42px; margin-bottom: 12px; }
+  .cover p { font-size: 18px; opacity: 0.7; }
+  .cover .meta { margin-top: 60px; font-size: 14px; opacity: 0.5; }
+  .section { padding: 40px 60px; page-break-before: always; }
+  .section h2 { font-size: 24px; color: #1a1a2e; border-bottom: 2px solid #1a1a2e; padding-bottom: 8px; }
+  .company-block { margin: 24px 0; padding: 20px; border-left: 4px solid #4a90d9; background: #f8f9ff; border-radius: 4px; }
+  .company-block h3 { margin: 0 0 8px; font-size: 18px; }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 12px; font-weight: bold; margin-right: 8px; }
+  .plg { background: #d4edda; color: #155724; }
+  .slg { background: #cce5ff; color: #004085; }
+  .hybrid { background: #fff3cd; color: #856404; }
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; }
+  th { background: #1a1a2e; color: white; padding: 10px 12px; text-align: left; }
+  td { padding: 8px 12px; border-bottom: 1px solid #e0e0e0; }
+  tr:nth-child(even) { background: #f5f5f5; }
+  .summary-box { background: #f0f4ff; border-radius: 8px; padding: 24px; margin: 20px 0; line-height: 1.7; }
+  .score-0 { color: #c0392b; font-weight: bold; }
+  .score-1 { color: #e67e22; font-weight: bold; }
+  .score-2 { color: #27ae60; font-weight: bold; }
+  .footer { text-align: center; font-size: 11px; color: #999; padding: 20px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>Competitive Intelligence Report</h1>
+  <p>{{ target_company }} vs. {{ competitors | join(", ") }}</p>
+  <div class="meta">Generated {{ generated_date }} | Himanshu | ESCP Business School</div>
+</div>
+
+<div class="section">
+  <h2>Executive summary</h2>
+  <div class="summary-box">{{ executive_summary }}</div>
+</div>
+
+<div class="section">
+  <h2>GTM motion analysis</h2>
+  {% for company in analysis %}
+  <div class="company-block">
+    <h3>{{ company.name }}</h3>
+    <span class="badge {% if 'PLG' in company.gtm_motion.classification %}plg{% elif 'SLG' in company.gtm_motion.classification %}slg{% else %}hybrid{% endif %}">
+      {{ company.gtm_motion.classification }}
+    </span>
+    <span style="font-size:12px; color:#666;">{{ company.gtm_motion.confidence }} confidence</span>
+    <p style="margin-top:10px; font-size:14px;">{{ company.gtm_motion.rationale }}</p>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="section">
+  <h2>Pricing intelligence</h2>
+  <table>
+    <tr>
+      <th>Company</th>
+      <th>Value metric</th>
+      <th>ICP</th>
+      <th>Free tier</th>
+      <th>Entry price</th>
+      <th>Strategy</th>
+    </tr>
+    {% for company in analysis %}
+    <tr>
+      <td><strong>{{ company.name }}</strong></td>
+      <td>{{ company.pricing_intel.value_metric }}</td>
+      <td>{{ company.pricing_intel.icp_signal }}</td>
+      <td>{{ "Yes" if company.pricing_intel.has_free_tier else "No" }}</td>
+      <td>{{ company.pricing_intel.entry_price or "N/A" }}</td>
+      <td>{{ company.pricing_intel.competitive_strategy }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="section">
+  <h2>Feature gap matrix</h2>
+  <table>
+    <tr>
+      <th>Job to be done</th>
+      {% for company in analysis %}<th>{{ company.name }}</th>{% endfor %}
+    </tr>
+    {% for i in range(jobs_to_be_done | length) %}
+    <tr>
+      <td>{{ jobs_to_be_done[i] }}</td>
+      {% for company in analysis %}
+      {% set score = company.job_scores[i].score if company.job_scores | length > i else 1 %}
+      <td class="score-{{ score }}">{{ ["0", "1", "2"][score] }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </table>
+  <p style="font-size:12px; color:#666;">0 = No capability, 1 = With friction, 2 = Does well</p>
+</div>
+
+<div class="footer">
+  Competitor Intelligence Platform | Built by Himanshu | ESCP Business School Paris
+</div>
+
+</body>
+</html>

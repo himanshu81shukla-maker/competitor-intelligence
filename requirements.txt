@@ -1,0 +1,11 @@
+anthropic
+streamlit
+plotly
+pandas
+requests
+beautifulsoup4
+gspread
+google-auth
+weasyprint
+jinja2
+python-dotenv
